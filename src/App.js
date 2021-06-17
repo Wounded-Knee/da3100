@@ -1,59 +1,12 @@
 import React, { useState } from 'react';
+import getEntityObject from './classes/getEntityObject';
+import {
+  ENTITY_TYPE_USER,
+  ENTITY_TYPE_CONTENT,
+  ENTITY_TYPE_CLASSIFIER,
+  ENTITY_TYPE_RATIFICATION,
+} from './constants';
 import './App.css';
-
-const
-  ENTITY_TYPE_USER = 'user',
-  ENTITY_TYPE_CONTENT = 'content',
-  ENTITY_TYPE_CLASSIFIER = 'classifier',
-  ENTITY_TYPE_RATIFICATION = 'ratification';
-
-class Entity {
-  constructor(data) {
-    this.data = data;
-  }
-
-  get id() {
-    return this.data.id;
-  }
-
-  get type() {
-    return this.data.type;
-  }
-
-  get text() {
-    return this.data.text;
-  }
-};
-
-class Content extends Entity {
-  getClassifiers() {
-    return this.data.classifiers;
-  }
-};
-
-class Ratification extends Entity {
-  get contentID() {
-    return this.data.contentID;
-  }
-
-  get classifierID() {
-    return this.data.classifierID;
-  }
-};
-
-const getClassByEntityType = (entityType) => {
-  switch(entityType) {
-    case ENTITY_TYPE_CONTENT:
-      return Content;
-    break;
-    case ENTITY_TYPE_RATIFICATION:
-      return Ratification;
-    break;
-    default:
-      return Entity;
-    break;
-  }
-}
 
 function App() {
   const [entities, setEntities] = useState([]);
@@ -127,60 +80,17 @@ function App() {
   };
 
   const getEntities = () => [ ...entities, ...entityCache ].map(
-    (entity) => new (getClassByEntityType(entity.type))(entity)
+    (entity) => getEntityObject(entity, {
+      getEntitiesByType,
+      getEntities,
+    })
   );
 
-  const getEntityById = (entityId) => {
-    const entity = getEntities().find(({ id }) => id === entityId);
-    if (!entity) return false;
-    var supplement = {};
-
-    switch (entity.type) {
-      case ENTITY_TYPE_CONTENT:
-        supplement = {
-          classifiers: getEntitiesByType(ENTITY_TYPE_CLASSIFIER)
-            .map(
-              (classifier) => {
-                const ratifications = getEntities().filter(
-                  ({ contentID, classifierID, type }) => (
-                    type === ENTITY_TYPE_RATIFICATION &&
-                    contentID === entityId &&
-                    classifierID === classifier.id
-                  )
-                );
-                const visible = ratifications.reduce(
-                  (visibility, { multiplier }, index) => visibility + multiplier,
-                  0
-                );
-                return {
-                  ...classifier,
-                  visible,
-                  ratifications,
-                };
-              }
-            )
-        };
-      break;
-      default:
-      break;
-    }
-
-    return {
-      ...entity,
-      ...supplement,
-    };
-  };
+  const getEntityById = (entityId) => getEntities().find(({ id }) => id === entityId);
 
   const getEntitiesByType = (targetType) => getEntities().filter(({ type }) => type === targetType);
 
-  const getContent = () => {
-    return (
-      getEntitiesByType(ENTITY_TYPE_CONTENT)
-      .map(
-        (content) => getEntityById(content.id)
-      )
-    );
-  }
+  const getContent = () => getEntitiesByType(ENTITY_TYPE_CONTENT);
 
   const setup = () => {
     console.log('Setting up');
