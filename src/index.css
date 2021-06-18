@@ -1,5 +1,6 @@
 body {
   margin: 0;
+  padding: 1em;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
@@ -16,12 +17,27 @@ li.invisible {
   opacity: 0.5;
 }
 
-ul ul.classifiers {
+li ul.classifiers {
   display: none;
 }
-ul:hover ul.classifiers {
+li:hover ul.classifiers {
   display: block;
 }
 #views button.invisible {
   opacity: 0.5;
+}
+
+.rc-tabs-nav-wrap,
+.rc-tabs {
+  border: 0 !important;
+}
+
+.rc-tabs-nav-list .rc-tabs-tab {
+  margin-right: 1em;
+}
+
+.classifier {
+  padding: 4px;
+  background: #ccc;
+  margin: 2px;
 }
