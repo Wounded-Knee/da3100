@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import ContentView from './ContentView';
-import ClassifierSelector from './ClassifierSelector';
 import getEntityObject from './classes/getEntityObject';
 import {
   ENTITY_TYPE_USER,
@@ -10,6 +9,7 @@ import {
 } from './constants';
 import './App.css';
 import ContentSelector from './ContentSelector';
+export const AccessorContext = React.createContext();
 
 function App() {
   const [entities, setEntities] = useState([]);
@@ -177,18 +177,14 @@ function App() {
 
     const [ userBob, userSue ] = users;
 
-    const content = [
-      addContent({ text: 'Apples grow on trees.', isTrue: true }, userBob),
-      addContent({ text: 'Apples can be red.', isTrue: true }, userBob),
-      addContent({ text: 'Apples can be green.', isTrue: true }, userBob),
-      addContent({ text: 'Apples are used to make french fries.', isTrue: false }, userBob),
-      addContent({ text: 'Apples are cube-shaped.', isTrue: false }, userSue),
-    ];
+    addContent({ text: 'Apples grow on trees.', isTrue: true }, userBob);
+    addContent({ text: 'Apples can be red.', isTrue: true }, userBob);
+    addContent({ text: 'Apples can be green.', isTrue: true }, userBob);
+    addContent({ text: 'Apples are used to make french fries.', isTrue: false }, userBob);
+    addContent({ text: 'Apples are cube-shaped.', isTrue: false }, userSue);
 
-    const classifiers = [
-      addClassifier({ text: 'True' }, userBob),
-      addClassifier({ text: 'False' }, userBob),
-    ];
+    addClassifier({ text: 'True' }, userBob);
+    addClassifier({ text: 'False' }, userBob);
 
     currentUser = userBob;
   };
@@ -232,56 +228,45 @@ function App() {
     setup();
   }
 
+  const xyzzy = (
+    viewState.spotlightEntity
+      ? viewState.spotlightEntity
+      : getContent()[0]
+  );
+
+  const spotlightEntity = getEntityById(
+    xyzzy.id
+  );
+
   console.log(`${getEntities().length} Entities: `, getEntities());
-  const selectableClassifiers = getEntitiesByType(ENTITY_TYPE_CLASSIFIER);
+
+  const accessors = {
+    addRatification,
+    currentUser,
+    getEntityById,
+  };
+
   return (
-    <>
-      <ClassifierSelector
-        label="ClassifierSelector"
-        entities={ selectableClassifiers }
-        onSelect={
-          (selectedClassifiers) => {
-            const selectedIds = selectedClassifiers.map( ({ id }) => id );
-            setViewState((prevViewState) => ({
-              ...prevViewState,
-              ...selectableClassifiers.reduce(
-                (obj, { id }) => ({
-                  [id]: selectedIds.indexOf(id) > -1
-                }), {}
-              )
-            }))
-          }
-        }
-      />
-
-      <ContentView
-        entity={ getContent()[0] }
-        accessors={{ addRatification, currentUser }}
-      />
-
+    <AccessorContext.Provider value={ accessors }>
       <ContentSelector
-        label="ContentSelector"
-        entities={
-          getContent()
-            .filter(
-              ({ classifiers }) => {
-                const x = classifiers
-                  .filter(
-                    ({ visible, id }) => (
-                      visible && viewState[id]
-                    ) || (
-                      !visible && Object.keys(viewState).reduce((acc, bool) => acc + (bool ? 1 : 0), 0) === 0
-                    )
-                  );
-                return x.length;
-              }
-            )
-        }
+        placeholder="Select Content"
+        entities={ getContent() }
+        onChange={ (entity) => setViewState(
+          (prevState) => ({
+            ...prevState,
+            spotlightEntity: entity,
+          })
+        )}
       />
 
       <button onClick={ test }>Test</button>
       <button onClick={ freeRatify }>Wait</button>
-    </>
+
+      <ContentView
+        entity={ spotlightEntity }
+        accessors={{ addRatification, currentUser }}
+      />
+    </AccessorContext.Provider>
   );
 }
 

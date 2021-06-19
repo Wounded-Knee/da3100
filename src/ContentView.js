@@ -50,7 +50,7 @@ function ContentView({ entity, accessors }) {
                                   color: '#ddd'
                                 },
                               ]}
-                            />;
+                            />
                             <button onClick={ () => addRatification({ id: entityId }, { id }, true, currentUser) }>Ratify</button>
                           </TabPane>
                         </Tabs>
