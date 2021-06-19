@@ -100,10 +100,12 @@ function App() {
     console.log('Setting up');
 
     const honesty = [
-      { val: 1, label: 'honest' },
-      { val: 0.9, label: 'faithful' },
+      { val: 1, label: 'infallible' },
+      { val: 0.9, label: 'honest' },
+      { val: 0.8, label: 'faithful' },
+      { val: 0.7, label: 'intuitive' },
       { val: 0.5, label: 'fair' },
-      { val: 0.2, label: 'fool' },
+      { val: 0.4, label: 'fool' },
       { val: 0, label: 'liar' },
     ];
 
@@ -177,14 +179,14 @@ function App() {
 
     const [ userBob, userSue ] = users;
 
+    addClassifier({ text: 'True' }, userBob);
+
     addContent({ text: 'Apples grow on trees.', isTrue: true }, userBob);
+    addContent({ text: 'Apples are cube-shaped.', isTrue: false }, userSue);
     addContent({ text: 'Apples can be red.', isTrue: true }, userBob);
     addContent({ text: 'Apples can be green.', isTrue: true }, userBob);
     addContent({ text: 'Apples are used to make french fries.', isTrue: false }, userBob);
-    addContent({ text: 'Apples are cube-shaped.', isTrue: false }, userSue);
-
-    addClassifier({ text: 'True' }, userBob);
-    addClassifier({ text: 'False' }, userBob);
+//    addClassifier({ text: 'False' }, userBob);
 
     currentUser = userBob;
   };
@@ -213,12 +215,14 @@ function App() {
             user
           )
         );
+  /*
         addRatification(
           content,
           classFalse,
           !contentIsTrueToMe,
           user
         );
+        */
       });
     });
   };
@@ -239,6 +243,7 @@ function App() {
   );
 
   console.log(`${getEntities().length} Entities: `, getEntities());
+  console.log('Spotlight ', spotlightEntity)
 
   const accessors = {
     addRatification,

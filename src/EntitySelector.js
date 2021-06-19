@@ -1,19 +1,20 @@
 import React from 'react';
-import { AccessorContext } from './App';
 import Select from 'react-select'
 
 function EntitySelector({ placeholder="Entity Selector", entities, selectProps={}, onChange=()=>{} }) {
   const
-    { getEntityById } = React.useContext(AccessorContext),
+    selectedOptionToArray = (options) => options instanceof Array ? options : [options],
+    optionsToEntities = (options) => selectedOptionToArray(options).map(optionToEntity),
+    entitiesToOptions = (entities) => entities.map(entityToOption),
     entityToOption = ({ id: value, text: label }) => ({ value, label }),
-    optionToEntity = ({ value: id }) => getEntityById(id);
+    optionToEntity = ({ value: optionId }) => entities.find(({ id: entityId }) => entityId === optionId);
 
   return (
     <Select
       { ...selectProps }
-      onChange={ (option) => onChange(optionToEntity(option)) }
+      onChange={ (options) => onChange(optionsToEntities(options)) }
       placeholder={ placeholder }
-      options={ entities.map(entityToOption) }
+      options={ entitiesToOptions(entities) }
     />
   );
 }

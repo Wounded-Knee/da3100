@@ -15,10 +15,12 @@ class Classifier extends Entity {
   }
 
   get visibility() {
-    return this.ratifications.reduce(
-      (visibility, { multiplier }, index) => visibility + multiplier,
+    const rating = this.getRatificationsByContent(this.contextEntity).reduce(
+      (visibility, { multiplier }) => visibility + multiplier,
       0
     );
+    console.log(`The crowd ${rating > 0 ? 'believes' : 'doubts'} it is ${this.data.text} that ${this.contextEntity.data.text} (${rating})`);
+    return rating;
   }
 
   getRatificationsByContent({ id }) {

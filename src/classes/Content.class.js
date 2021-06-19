@@ -27,6 +27,10 @@ class Content extends Entity {
         }
       );
   }
+
+  getClassifierById(findId) {
+    return this.classifiers.find( ({ id: trialId }) => trialId === findId );
+  }
 };
 
 export default Content;
