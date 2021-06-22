@@ -41,3 +41,29 @@ li:hover ul.classifiers {
   background: #ccc;
   margin: 2px;
 }
+
+.ContentView .RatificationChart {
+  float: left;
+  padding: 1em;
+  border: 1px solid #ccc;
+}
+.ContentView .RatificationChart .key dt {
+  float: left;
+  text-align: center;
+  width: 1em;
+}
+.ContentView .RatificationChart .key dd {
+  float: left;
+  margin-left: 0.5em;
+  width: 50px;
+}
+
+.RatificationList {
+  float: left;
+  width: 49%;
+}
+.ContentView .RatificationList th,
+.ContentView .RatificationList td {
+  text-align: left;
+  margin-right: 1em;
+}

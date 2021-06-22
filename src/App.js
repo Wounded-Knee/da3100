@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import Tabs, { TabPane } from 'rc-tabs';
+import BlockchainView from './BlockchainView';
 import ContentView from './ContentView';
 import getEntityObject from './classes/getEntityObject';
 import {
@@ -67,22 +69,28 @@ function App() {
       (maxId, { id }) => id > maxId ? id : maxId, 0
     ) + 1;
 
+    const clientDate = (new Date()).toString();
     const newRecord = {
       ...newData,
-      date: new Date(),
+      clientDate,
+      date: clientDate,
       id: newID,
     };
 
+    // Groom the entity cache by removing entities redundant with state.
     entityCache = [
       ...entityCache.filter((entityCached) => !entities.find((entityProper) => entityProper.id === entityCached.id)),
       newRecord,
     ];
+    // Add the new record to the state.
     setEntities((prevState) => [...prevState, newRecord ]);
 
     return newRecord;
   };
 
-  const getEntities = () => [ ...entities, ...entityCache ].map(
+  const getBlockchainData = () => [ ...entities, ...entityCache ];
+
+  const getEntities = () => getBlockchainData().map(
     (entity) => getEntityObject(entity, {
       getEntitiesByType,
       getEntities,
@@ -180,12 +188,13 @@ function App() {
     const [ userBob, userSue ] = users;
 
     addClassifier({ text: 'True' }, userBob);
+    addClassifier({ text: 'Topic: Apples' }, userBob);
 
-    addContent({ text: 'Apples grow on trees.', isTrue: true }, userBob);
-    addContent({ text: 'Apples are cube-shaped.', isTrue: false }, userSue);
-    addContent({ text: 'Apples can be red.', isTrue: true }, userBob);
-    addContent({ text: 'Apples can be green.', isTrue: true }, userBob);
-    addContent({ text: 'Apples are used to make french fries.', isTrue: false }, userBob);
+    addContent({ text: 'Apples grow on trees.', isTrue: true, topicApples: true }, userBob);
+    addContent({ text: 'Apples are cube-shaped.', isTrue: false, topicApples: true }, userSue);
+    addContent({ text: 'Apples can be red.', isTrue: true, topicApples: true }, userBob);
+    addContent({ text: 'Apples can be green.', isTrue: true, topicApples: true }, userBob);
+    addContent({ text: 'Apples are used to make french fries.', isTrue: false, topicApples: true }, userBob);
 //    addClassifier({ text: 'False' }, userBob);
 
     currentUser = userBob;
@@ -193,84 +202,109 @@ function App() {
 
   const freeRatify = () => {
     const
-      [ classTrue, classFalse ] = getEntitiesByType(ENTITY_TYPE_CLASSIFIER),
+      classifiers = [
+        {
+          classifier: getEntitiesByType(ENTITY_TYPE_CLASSIFIER)[0],
+          hintFlag: 'isTrue',
+          consoleCallback: (content, bool) => `"I ${bool?'believe':'doubt'} '${content.text}'"`,
+        },
+        {
+          classifier: getEntitiesByType(ENTITY_TYPE_CLASSIFIER)[1],
+          hintFlag: 'topicApples',
+          consoleCallback: (content, bool) => `"'${content.text}' ${bool?'seems to be':'isn\'t'} about apples."`,
+        },
+      ],
       users = getEntitiesByType(ENTITY_TYPE_USER),
       content = getEntitiesByType(ENTITY_TYPE_CONTENT);
 
     users.forEach((user) => {
       content.forEach((content) => {
-        const { honesty } = user;
-        const honest = honesty.val > Math.random();
-        const [ subjectivelyTrue, subjectivelyFalse ] = honest
-          ? [ true, false ]
-          : [ false, true ];
-        const contentIsTrueToMe = content.isTrue ? subjectivelyTrue : subjectivelyFalse;
-        console.log(
-          `${user.name} the ${honesty.label}: `+
-          `"I ${contentIsTrueToMe?'believe':'doubt'} '${content.text}'"`,
-          addRatification(
-            content,
-            classTrue,
-            contentIsTrueToMe,
-            user
-          )
-        );
-  /*
-        addRatification(
-          content,
-          classFalse,
-          !contentIsTrueToMe,
-          user
-        );
-        */
+        classifiers.forEach(({ consoleCallback, hintFlag, classifier }) => {
+          if (Math.random() > 0.9) {
+            const { honesty } = user;
+            const getBool = (bool) => !!(honesty.val > Math.random());
+
+            /*
+            console.log(
+              `${user.name} the ${honesty.label}: ` + consoleCallback(content, getBool(content[hintFlag])),
+              addRatification(
+                content,
+                classifier,
+                getBool(content.isTrue),
+                user
+              )
+            );
+            */
+            addRatification(
+              content,
+              classifier,
+              getBool(content.isTrue),
+              user
+            )
+          }
+        })
       });
     });
   };
+
+  //setInterval(freeRatify, 10000);
 
   // Initialize Data
   if (getEntities().length === 0) {
     setup();
   }
 
-  const xyzzy = (
-    viewState.spotlightEntity
+  const spotlightEntity = getEntityById(
+    (viewState.spotlightEntity
       ? viewState.spotlightEntity
       : getContent()[0]
+    ).id
   );
 
-  const spotlightEntity = getEntityById(
-    xyzzy.id
-  );
-
-  console.log(`${getEntities().length} Entities: `, getEntities());
-  console.log('Spotlight ', spotlightEntity)
+  //console.log(`${getEntities().length} Entities: `, getEntities());
+  //console.log('Spotlight ', spotlightEntity)
 
   const accessors = {
     addRatification,
     currentUser,
     getEntityById,
+    getContent,
   };
+  console.log('Accessors ', accessors);
 
   return (
     <AccessorContext.Provider value={ accessors }>
-      <ContentSelector
-        placeholder="Select Content"
-        entities={ getContent() }
-        onChange={ (entity) => setViewState(
-          (prevState) => ({
-            ...prevState,
-            spotlightEntity: entity,
-          })
-        )}
-      />
+      <Tabs defaultActiveKey="1">
+        <TabPane tab="Main" key="1">
+          <ContentView entity={ spotlightEntity } />
+        </TabPane>
+        <TabPane tab="Content" key="2">
+          <ContentSelector
+            placeholder="Select Content"
+            entities={ getContent() }
+            onChange={ (entity) => setViewState(
+              (prevState) => ({
+                ...prevState,
+                spotlightEntity: entity,
+              })
+            )}
+          />
 
-      <button onClick={ test }>Test</button>
-      <button onClick={ freeRatify }>Wait</button>
+          <button onClick={ test }>Test</button>
+          <button onClick={ freeRatify }>Wait</button>
 
-      <ContentView
-        entity={ spotlightEntity }
-        accessors={{ addRatification, currentUser }}
-      />
+          <ContentView entity={ spotlightEntity } />
+        </TabPane>
+        <TabPane tab="Classifiers" key="3">
+
+        </TabPane>
+        <TabPane tab="Ratifications" key="4">
+
+        </TabPane>
+        <TabPane tab="Blockchain" key="5">
+          <BlockchainView data={ getBlockchainData() } />
+        </TabPane>
+      </Tabs>
     </AccessorContext.Provider>
   );
 }

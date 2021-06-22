@@ -19,14 +19,15 @@ class Classifier extends Entity {
       (visibility, { multiplier }) => visibility + multiplier,
       0
     );
-    console.log(`The crowd ${rating > 0 ? 'believes' : 'doubts'} it is ${this.data.text} that ${this.contextEntity.data.text} (${rating})`);
+    //console.log(`The crowd ${rating > 0 ? 'believes' : 'doubts'} it is ${this.data.text} that ${this.contextEntity.data.text} (${rating})`);
     return rating;
   }
 
   getRatificationsByContent({ id }) {
+    const { getEntityById } = this.accessors;
     return this.ratifications.filter(
       ({ contentID }) => contentID === id
-    );
+    ).map(({ id }) => getEntityById(id));
   }
 
   get ratifications() {

@@ -12,6 +12,10 @@ class Entity {
     return this.data.type;
   }
 
+  get date() {
+    return this.data.date;
+  }
+
   get text() {
     return this.data.text;
   }
