@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Tabs, { TabPane } from 'rc-tabs';
-import BlockchainView from './BlockchainView';
-import ContentView from './ContentView';
+import MainScreenView from './MainScreenView';
+import SystemView from './SystemView';
 import getEntityObject from './classes/getEntityObject';
 import {
   ENTITY_TYPE_USER,
@@ -10,7 +10,6 @@ import {
   ENTITY_TYPE_RATIFICATION,
 } from './constants';
 import './App.css';
-import ContentSelector from './ContentSelector';
 export const AccessorContext = React.createContext();
 
 function App() {
@@ -254,56 +253,45 @@ function App() {
     setup();
   }
 
-  const spotlightEntity = getEntityById(
-    (viewState.spotlightEntity
-      ? viewState.spotlightEntity
-      : getContent()[0]
-    ).id
-  );
+  const setViewStateByUser = ({ id }, callback) => {
+    setViewState((prevState) => ({
+      ...prevState,
+      [id]: {
+        ...callback(prevState[id]),
+      },
+    }));
+  };
+
+  const getViewStateByUser = ({ id }) => viewState[id] || {};
 
   //console.log(`${getEntities().length} Entities: `, getEntities());
-  //console.log('Spotlight ', spotlightEntity)
 
   const accessors = {
     addRatification,
     currentUser,
     getEntityById,
     getContent,
+    setViewStateByUser,
+    getViewStateByUser,
+    test,
+    freeRatify,
+    getBlockchainData,
   };
   console.log('Accessors ', accessors);
 
   return (
     <AccessorContext.Provider value={ accessors }>
       <Tabs defaultActiveKey="1">
-        <TabPane tab="Main" key="1">
-          <ContentView entity={ spotlightEntity } />
+        <TabPane tab="System" key="1">
+          <SystemView />
         </TabPane>
-        <TabPane tab="Content" key="2">
-          <ContentSelector
-            placeholder="Select Content"
-            entities={ getContent() }
-            onChange={ (entity) => setViewState(
-              (prevState) => ({
-                ...prevState,
-                spotlightEntity: entity,
-              })
-            )}
-          />
-
-          <button onClick={ test }>Test</button>
-          <button onClick={ freeRatify }>Wait</button>
-
-          <ContentView entity={ spotlightEntity } />
-        </TabPane>
-        <TabPane tab="Classifiers" key="3">
-
-        </TabPane>
-        <TabPane tab="Ratifications" key="4">
-
-        </TabPane>
-        <TabPane tab="Blockchain" key="5">
-          <BlockchainView data={ getBlockchainData() } />
-        </TabPane>
+        {
+          getEntitiesByType(ENTITY_TYPE_USER).map(
+            (user, index) => <TabPane tab={ user.name } key={ index + 2 }>
+              <MainScreenView user={ user } />
+            </TabPane>
+          )
+        }
       </Tabs>
     </AccessorContext.Provider>
   );

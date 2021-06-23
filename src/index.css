@@ -40,6 +40,19 @@ li:hover ul.classifiers {
   padding: 4px;
   background: #ccc;
   margin: 2px;
+  color: #fff;
+  display: inline;
+  padding: 2px;
+}
+
+.classifier.state0 {
+  background-color: blue;
+}
+.classifier.state1 {
+  background-color: red;
+}
+.classifier.state2 {
+  background-color: gray;
 }
 
 .ContentView .RatificationChart {

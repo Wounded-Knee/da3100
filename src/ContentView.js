@@ -1,4 +1,5 @@
 import Tabs, { TabPane } from 'rc-tabs';
+import Classifier from './Classifier';
 import { AccessorContext } from './App';
 import { PieChart } from 'react-minimal-pie-chart';
 import 'rc-tabs/assets/index.css';
@@ -87,7 +88,7 @@ function ContentView({ entity }) {
           <h1>{ text }</h1>
           <Tabs defaultActiveKey="1" onChange={ () => {} }>
             <TabPane tab="Summary" key="1">
-              { entity.classifiersVisible.map(({ text, id }) => <span className="classifier" key={ id }>{ text }</span>) }
+              { entity.classifiersVisible.map((classifier, index) => <Classifier key={ index } classifier={ classifier } />) }
             </TabPane>
             { classifiers &&
               <TabPane tab="Classifiers" key="2">
