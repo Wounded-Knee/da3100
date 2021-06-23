@@ -15,8 +15,7 @@ const MultiToggle = ({ onChange=()=>{}, className, children, arrayStates, curren
     setState(() => nextStateIndex);
     onChange({
       index: nextStateIndex,
-      item: arrayStates[nextStateIndex],
-      arrayStates,
+      state: arrayStates[nextStateIndex],
     });
   };
 

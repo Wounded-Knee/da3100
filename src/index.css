@@ -41,8 +41,7 @@ li:hover ul.classifiers {
   background: #ccc;
   margin: 2px;
   color: #fff;
-  display: inline;
-  padding: 2px;
+  display: inline-block;
 }
 
 .classifier.state0 {
@@ -79,4 +78,8 @@ li:hover ul.classifiers {
 .ContentView .RatificationList td {
   text-align: left;
   margin-right: 1em;
+}
+
+.MultiToggle {
+  cursor: pointer;
 }

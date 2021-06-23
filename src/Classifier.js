@@ -5,7 +5,7 @@ const arrayStates = [ 'Ratified', 'Protested', 'Neutral' ];
 const Classifier = ({ classifier: { text } }) => (
   <MultiToggle
     className="classifier"
-    onChange={ ({ item }) => console.log(item) }
+    onChange={ ({ state }) => console.log(state) }
     arrayStates={ arrayStates }
   >
     { text }

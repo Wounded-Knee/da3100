@@ -1,7 +1,5 @@
 import Tabs, { TabPane } from 'rc-tabs';
 import BlockchainView from './BlockchainView';
-import ContentView from './ContentView';
-import ContentSelector from './ContentSelector';
 import { AccessorContext } from './App';
 
 function MainScreenView() {
